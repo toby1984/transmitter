@@ -1,6 +1,8 @@
 #ifndef DEBUG_LED_H
 #define DEBUG_LED_H
 
+#include <avr/io.h>
+
 #define DEBUG_LED_PIN 5
 #define DEBUG_LED_DDR DDRB
 #define DEBUG_LED_REG PORTB

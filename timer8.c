@@ -6,7 +6,7 @@
 // setup 8-bit timer to run forwards using the given clock clockDivider
 static uint8_t allocated[] = {0,0};
 
-timer8_init(uint8_t timerNo) {
+void timer8_init(uint8_t timerNo) {
 
     switch( timerNo ) {
       case 0: // COUNTER0 on ATMEGA328P
@@ -20,24 +20,6 @@ timer8_init(uint8_t timerNo) {
           fail(ERROR_TIMER_ALREADY_INITIALZED);
         }
         allocated[timerNo] = 1;
-        break;
-      default:
-        fail( ERROR_TIMER_ID_OUT_OF_RANGE ); // never returns
-    }
-}
-
-// setup 8-bit timer to run forwards using the given clock divier
-void timer8_init(uint8_t timerNo);
-
-// load 8-bit value into timer
-void timer8_load(uint8_t timerNo, uint8_t value)
-{
-    switch( timerNo ) {
-      case 0: // COUNTER0 on ATMEGA328P
-        TCNT0 = value;
-        break;
-      case 1: // COUNTER2 on ATMEGA328P
-        TCNT2 = value;
         break;
       default:
         fail( ERROR_TIMER_ID_OUT_OF_RANGE ); // never returns
@@ -50,14 +32,13 @@ void timer8_start(uint8_t timerNo, uint16_t clockDivider) {
     uint8_t clockBits = 1;
     switch( clockDivider ) {
         case 1: clockBits = (1<<CS00); break;
-        case 8: clockBits = (1<<CA01); break;
-        case 64: clockBits = (1<<CA01)|(1<<CS00); break;
-        case 256: clockBits = (1<<CA02); break;
-        case 1024: clockBits = (1<<CA02)|(1<<CS00); break;
+        case 8: clockBits = (1<<CS01); break;
+        case 64: clockBits = (1<<CS01)|(1<<CS00); break;
+        case 256: clockBits = (1<<CS02); break;
+        case 1024: clockBits = (1<<CS02)|(1<<CS00); break;
         default:
         fail( ERROR_TIMER_DIVIDER_OUT_OF_RANGE ); // never returns
     }
-
     switch( timerNo ) {
       case 0: // COUNTER0 on ATMEGA328P
         TCCR0B = clockBits;

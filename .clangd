@@ -1,0 +1,8 @@
+CompileFlags:
+  Add: 
+    - "--include-directory=/home/tobi/arduino_workspace/transmitter/include"
+    - "--include-directory=/home/tobi/apps/arduino_ide/./hardware/tools/avr/avr/include"
+    - "--include-directory=//home/tobi/apps/arduino_ide/./hardware/tools/avr/avr/include/sys"
+    - "--include-directory=//home/tobi/apps/arduino_ide/./hardware/tools/avr/avr/include/compat"
+    - "--include-directory=//home/tobi/apps/arduino_ide/./hardware/tools/avr/avr/include/avr"
+    - "--include-directory=//home/tobi/apps/arduino_ide/./hardware/tools/avr/avr/include/util"

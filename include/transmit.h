@@ -11,5 +11,5 @@ void transmit_init();
 void transmit_transmitter_state(bool onOff);
 
 // transmit up to 255 bytes of data
-void transmit(uint8_t *buffer, uint8_t len);
+void transmit_send_packet(uint8_t msgType, uint8_t payload_len, uint8_t *payload);
 #endif

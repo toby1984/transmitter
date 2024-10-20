@@ -3,13 +3,15 @@
 #include <debug_led.h>
 #include <stdint.h>
 #include <avr/interrupt.h>
+#include <avr/io.h>
 #include <util/delay.h>
+#include <stdbool.h>
 
 void fail(errorcode errorCode) {
     cli();
     debugLedOff();
     while( true ) {
-        for ( uint8_t cnt = errorcode ; cnt > 0 ; cnt-- ) {
+        for ( uint8_t cnt = errorCode ; cnt > 0 ; cnt-- ) {
             _delay_ms(1000);
             debugLedOn();
             _delay_ms(1000);
