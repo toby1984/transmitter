@@ -2,6 +2,7 @@
 #define RADIO_H
 
 #include <stdint.h>
+#include <avr/io.h>
 
 // how many times the sequence <RADIO_PREAMBLE1><RADIO_PREAMBLE2> will be transmitted before sending
 // RADIO_START_BYTE followed by the actual message
@@ -17,6 +18,11 @@
 // max. bit rate supported by hardware / brutto bit rate.
 // The actual (netto) bitrate available to the application will be half of it because of Manchester encoding.
 #define RADIO_BITS_PER_SECOND 9000
+
+#define RADIO_TIMER0_SYSCLK_DIV 64
+#define RADIO_TIMER0_SYSCLK_DIV_BITS (1<<CS01)|(1<<CS00)
+
+#define RADIO_TIMER0_NANOS_PER_TICK ((1000*RADIO_TIMER0_SYSCLK_DIV)/(F_CPU/1000000))
 
 // Manchester encoding: T
 #define RADIO_T_NANOS (1000000000/RADIO_BITS_PER_SECOND)
@@ -35,6 +41,9 @@
 #define RADIO_2T_MIN_NANOS (RADIO_2T_NANOS - RADIO_2T_NANOS*RADIO_TIMING_SLACK_PERCENTAGE)
 #define RADIO_2T_MAX_NANOS (RADIO_2T_NANOS + RADIO_2T_NANOS*RADIO_TIMING_SLACK_PERCENTAGE)
 
+#if 255*RADIO_TIMER0_NANOS_PER_TICK < RADIO_T_NANOS
+#error sysclk_div RADIO_TIMER0_SYSCLK_DIV is too low, 8-bit timer cannot measure up to RADIO_T_NANOS
+#endif
 // write message preamble data to an array of at least RADIO_PREAMBLE_SIZE_IN_BYTES bytes in size
 void radio_init_preamble(uint8_t *data);
 

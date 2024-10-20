@@ -9,11 +9,12 @@
 #include <util/crc16.h>
 #include <util/delay.h>
 
-// TX DATA_OUT connected to D2
+// PD2 is connected to 433 MHz transmitter DATA line
 #define DATA_OUT_PIN 2
 #define DATA_OUT_DDR DDRD
 #define DATA_OUT_REG PORTD
 
+// PD5 is connected to a MOSFET that controls power to the transmitter
 #define SENDER_ONOFF_PIN 5
 #define SENDER_ONOFF_DDR DDRD
 #define SENDER_ONOFF_REG PORTD
@@ -56,7 +57,7 @@ static bitstream crcBitstream;
 static bitstream payloadBitstream;
 
 // invoked roughly every RADIO_T_NANOS (actual interval depends on CPU frequency and sysclk divider used)
-ISR(TIMER0_OVF_vect)
+ISR(TIMER0_COMPA_vect)
 {
     // check whether we're currently sending a low-high or high-low sequence
     switch(bitState) {
@@ -173,7 +174,7 @@ void transmit_init() {
 
 void transmit_send_packet(uint8_t msgType, uint8_t payload_len, uint8_t *payload)
 {
-    while( transmitState != TRANSMIT_IDLE) { };
+    while( transmitState != TRANSMIT_IDLE) {};
 
     nextMessage.msgType = msgType;
     nextMessage.payload_len = payload_len;
@@ -207,7 +208,18 @@ void transmit_send_packet(uint8_t msgType, uint8_t payload_len, uint8_t *payload
     transmitState = TRANSMIT_PREAMBLE;
     bitState = BITSTATE_DONE;
 
-    // FIXME: enable interrupt
+    // setup TIMER0 interrupt
+    cli();
+    TCCR0B = 0; // stop Timer0
+    TIMSK0 = 0; // disable Timer0 interrupts
+    sei();
+
+    TCNT0 = 0; // set timer start value
+    OCR0A = 0x00; // set timer end value
+    TCCR0A = (1<<WGM01); // enable CTC (clear timer on compare match) mode, timer loops at OCF0A
+    TIMSK0 = (1<<OCIE0A); // enable Timer0 compare IRQ
+
+    TCCR0B = RADIO_TIMER0_SYSCLK_DIV_BITS; // start Timer0 by setting frequency to sysclk/64
 }
 
 // switch actual transmitter on or off (useful for saving power, avoiding interference with receiver close to it)
@@ -215,7 +227,7 @@ void transmit_transmitter_state(bool onOff) {
     if ( onOff ) {
       senderOn();
       // wait some time for the transmitter to settle before we start sending data
-      _delay_ms(250);
+      _delay_ms(100);
     } else {
       senderOff();
     }
