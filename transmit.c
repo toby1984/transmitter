@@ -7,6 +7,7 @@
 #include <avr/interrupt.h>
 #include <message.h>
 #include <util/crc16.h>
+#include <util/delay.h>
 
 // TX DATA_OUT connected to D2
 #define DATA_OUT_PIN 2
@@ -44,7 +45,7 @@ typedef enum BitSentState {
 static volatile message nextMessage;
 
 // IRQ handler data
-static volatile TransmitState currentState;
+static volatile TransmitState transmitState;
 static volatile BitSentState bitState;
 
 static uint8_t preamble[RADIO_PREAMBLE_SIZE_IN_BYTES];
@@ -75,7 +76,7 @@ ISR(TIMER0_OVF_vect)
     bitstream *bitstream;
 
 try_again:
-    switch(currentState) {
+    switch(transmitState) {
         case TRANSMIT_IDLE:
             return;
         case TRANSMIT_PREAMBLE:
@@ -94,7 +95,7 @@ try_again:
             bitstream = &payloadBitstream;
             break;
         case TRANSMIT_FINALIZING:
-            currentState = TRANSMIT_IDLE;
+            transmitState = TRANSMIT_IDLE;
             return;
     }
 
@@ -122,43 +123,48 @@ try_again:
 
     // the current bitstream ran out of bits,
     // advance to next state
-    switch(currentState) {
+    switch(transmitState) {
         case TRANSMIT_IDLE:
             return;
         case TRANSMIT_PREAMBLE:
-            currentState = TRANSMIT_MSG_TYPE;
+            transmitState = TRANSMIT_MSG_TYPE;
             goto try_again;
         case TRANSMIT_MSG_TYPE:
-            currentState = TRANSMIT_PAYLOAD_LEN;
+            transmitState = TRANSMIT_PAYLOAD_LEN;
             goto try_again;
         case TRANSMIT_PAYLOAD_LEN:
-            currentState = TRANSMIT_CRC;
+            transmitState = TRANSMIT_CRC;
             goto try_again;
         case TRANSMIT_CRC:
             if ( nextMessage.payload_len != 0 ) {
-                currentState = TRANSMIT_PAYLOAD;
+                transmitState = TRANSMIT_PAYLOAD;
                 goto try_again;
             }
             // $$FALL-THROUGH$$
         case TRANSMIT_PAYLOAD:
-            currentState = TRANSMIT_FINALIZING;
+            transmitState = TRANSMIT_FINALIZING;
             bitState = BITSTATE_HIGH;
             dataOutLow();
             break;
         case TRANSMIT_FINALIZING:
-            currentState = TRANSMIT_IDLE;
+            transmitState = TRANSMIT_IDLE;
             break;
     }
 }
 
-
 void transmit_init() {
 
-    currentState = TRANSMIT_IDLE;
+    transmitState = TRANSMIT_IDLE;
     bitstream_for_reading( &preambleBitstream, preamble, sizeof preamble);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+
     bitstream_for_reading( &msgTypeBitstream, &nextMessage.msgType, sizeof nextMessage.msgType);
     bitstream_for_reading( &payloadLenBitstream, &nextMessage.payload_len, sizeof nextMessage.payload_len);
     bitstream_for_reading( &crcBitstream, &nextMessage.crc, sizeof nextMessage.crc);
+
+#pragma GCC diagnostic pop
 
     DATA_OUT_DDR |= (1<<DATA_OUT_PIN);
     transmit_transmitter_state(false);
@@ -167,7 +173,7 @@ void transmit_init() {
 
 void transmit_send_packet(uint8_t msgType, uint8_t payload_len, uint8_t *payload)
 {
-    while( currentState != TRANSMIT_IDLE) { };
+    while( transmitState != TRANSMIT_IDLE) { };
 
     nextMessage.msgType = msgType;
     nextMessage.payload_len = payload_len;
@@ -192,11 +198,13 @@ void transmit_send_packet(uint8_t msgType, uint8_t payload_len, uint8_t *payload
     bitstream_rewind( &msgTypeBitstream );
     bitstream_rewind( &payloadLenBitstream );
     bitstream_rewind( &crcBitstream );
-    bitstream_for_reading( &payloadBitstream, &nextMessage.payload[0], payload_len);
 
-    // turn on transmitter
-    transmit_transmitter_state(true);
-    currentState = TRANSMIT_PREAMBLE;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+    bitstream_for_reading( &payloadBitstream, &nextMessage.payload[0], payload_len);
+#pragma GCC diagnostic pop
+
+    transmitState = TRANSMIT_PREAMBLE;
     bitState = BITSTATE_DONE;
 
     // FIXME: enable interrupt
@@ -206,6 +214,8 @@ void transmit_send_packet(uint8_t msgType, uint8_t payload_len, uint8_t *payload
 void transmit_transmitter_state(bool onOff) {
     if ( onOff ) {
       senderOn();
+      // wait some time for the transmitter to settle before we start sending data
+      _delay_ms(250);
     } else {
       senderOff();
     }
