@@ -3,9 +3,7 @@
 #include <debug_led.h>
 #include <stdint.h>
 #include <avr/interrupt.h>
-#include <avr/io.h>
 #include <util/delay.h>
-#include <stdbool.h>
 
 void fail(errorcode errorCode) {
     cli();

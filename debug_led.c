@@ -1,5 +1,6 @@
 #include <debug_led.h>
 
+#include <hw.h>
 #include <avr/io.h>
 #include <stdint.h>
 

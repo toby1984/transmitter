@@ -2,14 +2,7 @@
 #define DEBUG_LED_H
 
 #include <avr/io.h>
-
-#define DEBUG_LED_PIN 5
-#define DEBUG_LED_DDR DDRB
-#define DEBUG_LED_REG PORTB
-
-#define debugLedOn() DEBUG_LED_REG |= (1<<DEBUG_LED_PIN)
-#define debugLedOff() DEBUG_LED_REG &= ~(1<<DEBUG_LED_PIN)
-#define debugLedToggle() DEBUG_LED_REG ^= (1<<DEBUG_LED_PIN)
+#include <hw.h>
 
 void debug_led_init();
 void debug_led(uint8_t onOff);

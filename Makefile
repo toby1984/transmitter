@@ -5,9 +5,11 @@ AVRCC_CHIP=atmega328p
 AVRDUDE_CHIP = m328p
 CPU_FREQ=16000000
 
+CFLAGS = -DMCU=atmega328p
+
 AVRDUDE_DEVICE = /dev/ttyACM0
 
-OBJECTS = main.o bitstream.o debug_led.o error.o timer8.o transmit.o
+OBJECTS = main.o bitstream.o debug_led.o error.o transmit.o hw.o
 
 COMPILE = avr-gcc
 
