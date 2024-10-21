@@ -4,6 +4,10 @@
 #include <radio.h>
 #include <stdint.h>
 
+/*
+ * Message formats.
+ */
+
 // size of message header only (WITHOUT payload or preamble)
 #define MESSAGE_HEADER_SIZE 3
 
@@ -19,6 +23,7 @@ typedef struct message {
 
 #define MESSAGE_SIZE_WITHOUT_PAYLOAD sizeof(((message*) 0)->msgType) + sizeof(((message*) 0)->payload_len) + sizeof(((message*) 0)->crc)
 
+// radio protocol wire format
 typedef struct wire_message {
   uint8_t preamble[RADIO_PREAMBLE_SIZE_IN_BYTES];
   message message;

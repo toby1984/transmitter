@@ -6,6 +6,10 @@
 #include <avr/io.h>
 #include <utils.h>
 
+/*
+ * Constants related to the radio protocol.
+ */
+
 // Maximum size of a packet on the wire/air).
 //
 // My code is using uint8_t everywhere so we can loop over at most 255 bytes
@@ -48,8 +52,5 @@
 // Manchester encoding: min/max thresholds to detect 2T
 #define RADIO_2T_MIN_NANOS (RADIO_2T_NANOS - RADIO_2T_NANOS*RADIO_TIMING_SLACK_PERCENTAGE)
 #define RADIO_2T_MAX_NANOS (RADIO_2T_NANOS + RADIO_2T_NANOS*RADIO_TIMING_SLACK_PERCENTAGE)
-
-// write message preamble data to an array of at least RADIO_PREAMBLE_SIZE_IN_BYTES bytes in size
-void radio_init_preamble(uint8_t *data);
 
 #endif

@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/*
+ * A stream of bits.
+ */
+
 // size must not exceed 255 bytes
 #define BITSTREAM_BUFFER_SIZE_BYTES 128
 
@@ -11,7 +15,6 @@ typedef struct bitstream {
     uint16_t bitsAvailable;
     uint8_t currentByteIdx;
     uint8_t currentMask;
-    bool error;
 } bitstream;
 
 // setup bitstream for reading given len bytes of data from it
