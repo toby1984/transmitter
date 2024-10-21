@@ -7,6 +7,7 @@
 
 void fail(errorcode errorCode) {
     cli();
+    debug_led_init();
     debugLedOff();
     while( true ) {
         for ( uint8_t cnt = errorCode ; cnt > 0 ; cnt-- ) {
