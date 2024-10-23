@@ -87,10 +87,9 @@ static void transmit_irq_handler()
     }
 }
 
-void transmit_init() {
-    DATA_OUT_DDR |= (1<<DATA_OUT_PIN);
-    transmit_transmitter_state(false);
-    SENDER_ONOFF_DDR |= (1<<SENDER_ONOFF_PIN);
+void transmit_init()
+{
+    transmit_hw_init();
 
     // write preamble once so we don't have to do it every time
     // we're sending a packet
@@ -133,7 +132,7 @@ void transmit_send_packet(uint8_t msgType, uint8_t payload_len, uint8_t *payload
     transmitState = TRANSMIT_MESSAGE;
     bitState = BITSTATE_DONE;
 
-    transmit_start_timer_irq(&transmit_irq_handler);
+    transmit_hw_start_timer_irq(&transmit_irq_handler);
 }
 
 // switch actual transmitter on or off (useful for saving power, avoiding interference with receiver close to it)

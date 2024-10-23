@@ -9,7 +9,7 @@ CFLAGS = -DMCU=atmega328p
 
 AVRDUDE_DEVICE = /dev/ttyACM0
 
-OBJECTS = main.o bitstream.o debug_led.o error.o transmit.o hw.o
+OBJECTS = main.o bitstream.o debug_led.o error.o transmit.o hw.o serial.o ringbuffer.o
 
 COMPILE = avr-gcc
 

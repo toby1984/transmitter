@@ -9,4 +9,5 @@
  */
 void debug_led_init();
 void debug_led(uint8_t onOff);
+void debug_led_blink(uint8_t times);
 #endif

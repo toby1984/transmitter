@@ -35,7 +35,7 @@
 // Manchester encoding: T
 #define RADIO_T_NANOS (1000000000L/RADIO_BITS_PER_SECOND)
 
-#pragma message "RADIO_T_NANOS: " XSTR(RADIO_T_NANOS)
+// #pragma message "RADIO_T_NANOS: " XSTR(RADIO_T_NANOS)
 
 // Manchester encoding: 2T
 #define RADIO_2T_NANOS (2*RADIO_T_NANOS)
@@ -43,7 +43,7 @@
 // max. timing deviation during Manchester decoding
 // (needs to be less than 0.5)
 #define RADIO_TIMING_SLACK_PERCENTAGE 0.25
-#pragma message "RADIO_TIMING_SLACK_PERCENTAGE: " XSTR(RADIO_TIMING_SLACK_PERCENTAGE)
+// #pragma message "RADIO_TIMING_SLACK_PERCENTAGE: " XSTR(RADIO_TIMING_SLACK_PERCENTAGE)
 
 // Manchester encoding: min/max thresholds to detect T
 #define RADIO_T_MIN_NANOS (RADIO_T_NANOS - RADIO_T_NANOS*RADIO_TIMING_SLACK_PERCENTAGE)

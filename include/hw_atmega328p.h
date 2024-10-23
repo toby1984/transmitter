@@ -14,12 +14,12 @@
 #define RADIO_TIMER0_SYSCLK_DIV_BITS (1<<CS01)|(1<<CS00)
 #define RADIO_TIMER0_NANOS_PER_TICK ((1000L*RADIO_TIMER0_SYSCLK_DIV)/(F_CPU/1000000L))
 
-#pragma message "RADIO_TIMER0_NANOS_PER_TICK: " XSTR(RADIO_TIMER0_NANOS_PER_TICK)
+// #pragma message "RADIO_TIMER0_NANOS_PER_TICK: " XSTR(RADIO_TIMER0_NANOS_PER_TICK)
 
 #define RADIO_T_TIMER_TICKS_TO_WAIT (RADIO_T_NANOS / RADIO_TIMER0_NANOS_PER_TICK )
-#pragma message "RADIO_T_TIMER_TICKS_TO_WAIT: " XSTR(RADIO_T_TIMER_TICKS_TO_WAIT)
+// #pragma message "RADIO_T_TIMER_TICKS_TO_WAIT: " XSTR(RADIO_T_TIMER_TICKS_TO_WAIT)
 
-#if RADIO_T_TIMER_TICKS_TO_WAIT > 255
+#if RADIO_T_TIMER_TICKS_TO_WAIT > 255 || RADIO_T_TIMER_TICKS_TO_WAIT < 1
 #error sysclk_div RADIO_TIMER0_SYSCLK_DIV is too low, 8-bit timer cannot measure up to RADIO_T_NANOS
 #endif
 
@@ -48,6 +48,12 @@
 #define debugLedOn() DEBUG_LED_REG |= (1<<DEBUG_LED_PIN)
 #define debugLedOff() DEBUG_LED_REG &= ~(1<<DEBUG_LED_PIN)
 #define debugLedToggle() DEBUG_LED_REG ^= (1<<DEBUG_LED_PIN)
+
+// ============ serial.c ===============
+
+#define BAUD 115200
+#define serial_hw_write_data_register(data) UDR0 = data
+#define serial_hw_wait_data_register_empty() while ( !( UCSR0A & (1<<UDRE0)) )
 
 // ===================================
 #endif
