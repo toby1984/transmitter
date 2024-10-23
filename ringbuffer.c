@@ -50,11 +50,13 @@ uint8_t ringbuffer_remaining_space(ringbuffer *buffer) {
 uint8_t ringbuffer_bulk_write(ringbuffer *buffer, uint8_t *data,uint8_t len) {
     uint8_t available = ringbuffer_remaining_space(buffer);
     uint8_t bytes_written = available >= len ? len : available;
-    uint8_t *dst = &buffer->data[buffer->write_ptr];
-    while ( len-- > 0 ) {
-      *dst++ = *data++;
+    uint8_t bytesToCopy = bytes_written;
+    uint8_t ptr = buffer->write_ptr;
+    while ( bytesToCopy-- > 0 ) {
+      buffer->data[ptr] = *data++;
+      ptr = (ptr+1) % buffer->size;
     }
-    buffer->write_ptr = (buffer->write_ptr + bytes_written) % buffer->size;
+    buffer->write_ptr = ptr;
     return bytes_written;
 }
 
@@ -68,4 +70,21 @@ uint8_t ringbuffer_read(ringbuffer *buffer)
     uint8_t result = buffer->data[buffer->read_ptr];
     buffer->read_ptr = (buffer->read_ptr+1) % buffer->size;
     return result;
+}
+
+uint8_t ringbuffer_available_bytes(ringbuffer *buffer) {
+    return buffer->size - ringbuffer_remaining_space(buffer)-1;
+}
+
+uint8_t ringbuffer_bulk_read(ringbuffer *buffer, uint8_t *destination, uint8_t size) {
+    uint8_t bytesAvailable = ringbuffer_available_bytes(buffer);
+    uint8_t read = size >= bytesAvailable ? bytesAvailable : size;
+    uint8_t toRead = read;
+    uint8_t ptr = buffer->read_ptr;
+    while( toRead-- > 0 ) {
+        *destination++ = buffer->data[ptr];
+        ptr = (ptr+1) % buffer->size;
+    }
+    buffer->read_ptr = ptr;
+    return read;
 }

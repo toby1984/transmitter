@@ -21,9 +21,13 @@ bool ringbuffer_is_empty(ringbuffer *buffer);
 
 void ringbuffer_write(ringbuffer *buffer, uint8_t data);
 
+uint8_t ringbuffer_bulk_read(ringbuffer *buffer, uint8_t *destination, uint8_t size);
+
 uint8_t ringbuffer_size(ringbuffer *buffer);
 
 uint8_t ringbuffer_remaining_space(ringbuffer *buffer);
+
+uint8_t ringbuffer_available_bytes(ringbuffer *buffer);
 
 // returns the number of actual bytes written
 uint8_t ringbuffer_bulk_write(ringbuffer *buffer, uint8_t *data,uint8_t len);
