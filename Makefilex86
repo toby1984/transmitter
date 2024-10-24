@@ -1,0 +1,21 @@
+INCLUDE_DIRS = -Iinclude
+LIB_DIR = 
+
+CPU_FREQ=16000000
+
+CFLAGS = -DF_CPU=$(CPU_FREQ) -DMCU=atmega328p -DX86 -g -Wall -Wno-pointer-sign -O0
+
+OBJECTS = mainx86.o ringbuffer.o error.o
+
+COMPILE = gcc
+
+all: mainx86
+
+.c.o:
+	$(COMPILE) $(CFLAGS)  $(INCLUDE_DIRS) -c $< -o $@
+
+mainx86: $(OBJECTS)
+	$(COMPILE) $(CFLAGS) $(INCLUDE_DIRS) -o mainx86 $(OBJECTS)
+
+clean:
+	rm -f mainx86 $(OBJECTS)

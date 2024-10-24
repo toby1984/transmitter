@@ -13,7 +13,6 @@ static volatile uint8_t send_buffer_data[SERIAL_SEND_BUFFER_SIZE];
 static volatile ringbuffer send_buffer;
 
 static void serial_tx_irq() {
-    debug_led_blink(1);
     // "send buffer empty" IRQ got triggered
     if ( ringbuffer_is_empty(&send_buffer) ) {
       // turn off IRQ as it will be generated as long as the UART data register is empty
@@ -21,7 +20,7 @@ static void serial_tx_irq() {
       serial_hw_set_tx_irq_enabled(false);
       return;
     }
-    serial_hw_send_byte( ringbuffer_read(&send_buffer) );
+    serial_hw_write_data_register( ringbuffer_read(&send_buffer) );
 }
 
 void serial_init() {

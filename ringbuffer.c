@@ -42,8 +42,14 @@ uint8_t ringbuffer_remaining_space(ringbuffer *buffer) {
     if ( buffer ->write_ptr >= buffer->read_ptr ) {
       return  buffer->size - ( buffer ->write_ptr - buffer->read_ptr ) - 1;
     }
-    // write_ptr has wrapped already
-    return buffer->size - ( buffer->read_ptr - buffer->write_ptr ) - 1;
+    return buffer->size + buffer->write_ptr - buffer->read_ptr -1;
+}
+
+uint8_t ringbuffer_available_bytes(ringbuffer *buffer) {
+    if ( buffer ->read_ptr <= buffer->write_ptr ) {
+      return buffer ->write_ptr - buffer->read_ptr;
+    }
+    return buffer->size - buffer->read_ptr + buffer->write_ptr;
 }
 
 // returns the number of actual bytes written
@@ -62,7 +68,7 @@ uint8_t ringbuffer_bulk_write(ringbuffer *buffer, uint8_t *data,uint8_t len) {
 
 uint8_t ringbuffer_read(ringbuffer *buffer)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     if ( ringbuffer_is_empty(buffer) ) {
       fail(ERROR_RINGBUFFER_UNDERFLOW);
     }
@@ -70,10 +76,6 @@ uint8_t ringbuffer_read(ringbuffer *buffer)
     uint8_t result = buffer->data[buffer->read_ptr];
     buffer->read_ptr = (buffer->read_ptr+1) % buffer->size;
     return result;
-}
-
-uint8_t ringbuffer_available_bytes(ringbuffer *buffer) {
-    return buffer->size - ringbuffer_remaining_space(buffer)-1;
 }
 
 uint8_t ringbuffer_bulk_read(ringbuffer *buffer, uint8_t *destination, uint8_t size) {
